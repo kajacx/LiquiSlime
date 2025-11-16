@@ -19,9 +19,8 @@ cp ./target/wasm32-unknown-unknown/debug/liquislime-macroquad.wasm ../../liquisl
 cd ../..
 
 echo "Copying assets"
-rm -rf liquislime-docker/web-files/crates
-mkdir -p liquislime-docker/web-files/crates/liquislime-macroquad
-cp -r main-game/crates/liquislime-macroquad/assets liquislime-docker/web-files/crates/liquislime-macroquad
+rm -rf liquislime-docker/web-files/assets
+cp -r main-game/assets liquislime-docker/web-files
 
 echo "Starting docker"
 cd liquislime-docker

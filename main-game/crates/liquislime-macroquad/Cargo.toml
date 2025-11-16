@@ -9,3 +9,6 @@ license.workspace = true
 [dependencies]
 macroquad = "0.4"
 liquislime-core = { path = "../liquislime-core" }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = "0.3"

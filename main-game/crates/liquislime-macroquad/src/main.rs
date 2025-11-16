@@ -1,9 +1,12 @@
+use liquislime_core::{Faction, GameState, SlimeAmount, SlimeGrid, TilePosition, TimeInterval};
 use macroquad::{input, prelude::*};
 
-use liquislime_core::{Faction, GameState, SlimeAmount, SlimeGrid, TilePosition, TimeInterval};
+mod setup;
 
 #[macroquad::main("Liquislime")]
 async fn main() {
+    setup::setup_panic_hook();
+
     let faction0 = Faction::new(0, liquislime_core::Color::new(255, 128, 0));
     let faction1 = Faction::new(1, liquislime_core::Color::new(0, 255, 64));
 
@@ -21,82 +24,94 @@ async fn main() {
         SlimeAmount::from_integer(60000),
     );
 
-    let mut hero_pos = Vec2::new(0.0, 0.0);
     // println!("{:?}", std::env::current_dir().unwrap());
-    let texture = load_texture("crates/liquislime-macroquad/assets/lucy.png")
-        .await
-        .unwrap();
+    let texture = load_texture("assets/lucy.png").await.unwrap();
+
+    // let mut error = None;
 
     loop {
-        state.update(TimeInterval::from_seconds(get_frame_time() as f64));
-
-        if input::is_mouse_button_pressed(MouseButton::Left) {
-            #[allow(unused_must_use)]
-            state.grids.try_add_amount(
-                faction0.id(),
-                TilePosition::new(
-                    (input::mouse_position().0 as i32) / 10,
-                    (input::mouse_position().1 as i32) / 10,
-                ),
-                SlimeAmount::from_integer(1000000),
-            );
-
-            if input::mouse_position().0 > 500.0 {
-                panic!("Will this message show up in the console?");
-            }
-        }
-
-        if input::is_mouse_button_down(MouseButton::Right) {
-            #[allow(unused_must_use)]
-            state.grids.try_add_amount(
-                faction1.id(),
-                TilePosition::new(
-                    (input::mouse_position().0 as i32) / 10,
-                    (input::mouse_position().1 as i32) / 10,
-                ),
-                SlimeAmount::from_integer(10000),
-            );
-
-            let mouse_pos = input::mouse_position();
-            hero_pos = Vec2::new(mouse_pos.0, mouse_pos.1);
-        }
-
-        clear_background(LIGHTGRAY);
-
-        draw_slime_grid(
-            &state.grids.grids[0],
-            0.0,
-            0.0,
-            10.0,
-            parse_color(faction0.color()),
-        );
-        draw_slime_grid(
-            &state.grids.grids[1],
-            0.0,
-            0.0,
-            10.0,
-            parse_color(faction1.color()),
-        );
-
-        draw_texture_ex(
-            &texture,
-            hero_pos.x - 50.0,
-            hero_pos.y - 50.0,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(Vec2::new(100.0, 100.0)),
-                ..Default::default()
-            },
-        );
-
-        // draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
-        // draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-        // draw_circle(screen_width() - 30.0, screen_height() - 30.0, 15.0, YELLOW);
+        // let result = std::panic::catch_unwind(|| {
+        update(&mut state);
+        render(&state, &texture);
+        // });
 
         // draw_text("IT WORKS!", 20.0, 20.0, 30.0, DARKGRAY);
 
         next_frame().await
     }
+}
+
+fn update(state: &mut GameState) {
+    let faction0 = Faction::new(0, liquislime_core::Color::new(255, 128, 0));
+    let faction1 = Faction::new(1, liquislime_core::Color::new(0, 255, 64));
+
+    state.update(TimeInterval::from_seconds(get_frame_time() as f64));
+
+    if input::is_mouse_button_pressed(MouseButton::Left) {
+        #[allow(unused_must_use)]
+        state.grids.try_add_amount(
+            faction0.id(),
+            TilePosition::new(
+                (input::mouse_position().0 as i32) / 10,
+                (input::mouse_position().1 as i32) / 10,
+            ),
+            SlimeAmount::from_integer(1000000),
+        );
+
+        if input::mouse_position().0 > 500.0 {
+            panic!("Will this message show up in the console?");
+        }
+    }
+
+    if input::is_mouse_button_down(MouseButton::Right) {
+        #[allow(unused_must_use)]
+        state.grids.try_add_amount(
+            faction1.id(),
+            TilePosition::new(
+                (input::mouse_position().0 as i32) / 10,
+                (input::mouse_position().1 as i32) / 10,
+            ),
+            SlimeAmount::from_integer(10000),
+        );
+
+        // let mouse_pos = input::mouse_position();
+        // hero_pos = Vec2::new(mouse_pos.0, mouse_pos.1);
+    }
+}
+
+fn render(state: &GameState, texture: &Texture2D) {
+    let faction0 = Faction::new(0, liquislime_core::Color::new(255, 128, 0));
+    let faction1 = Faction::new(1, liquislime_core::Color::new(0, 255, 64));
+
+    let hero_pos = Vec2::new(0.0, 0.0);
+
+    clear_background(LIGHTGRAY);
+
+    draw_slime_grid(
+        &state.grids.grids[0],
+        0.0,
+        0.0,
+        10.0,
+        parse_color(faction0.color()),
+    );
+    draw_slime_grid(
+        &state.grids.grids[1],
+        0.0,
+        0.0,
+        10.0,
+        parse_color(faction1.color()),
+    );
+
+    draw_texture_ex(
+        &texture,
+        hero_pos.x - 50.0,
+        hero_pos.y - 50.0,
+        WHITE,
+        DrawTextureParams {
+            dest_size: Some(Vec2::new(100.0, 100.0)),
+            ..Default::default()
+        },
+    );
 }
 
 fn parse_color(color: liquislime_core::Color) -> Color {
