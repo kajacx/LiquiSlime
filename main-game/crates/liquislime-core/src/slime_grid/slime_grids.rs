@@ -5,14 +5,14 @@ use crate::data_types::*;
 #[derive(Debug)]
 pub struct SlimeGrids {
     #[readonly]
-    grids: [SlimeGrid; 2],
+    grids: Vec<SlimeGrid>,
 }
 
 #[allow(unused)]
 impl SlimeGrids {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(factions: usize, width: usize, height: usize) -> Self {
         Self {
-            grids: [SlimeGrid::new(width, height), SlimeGrid::new(width, height)],
+            grids: vec![SlimeGrid::new(width, height); factions],
         }
     }
 

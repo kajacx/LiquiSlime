@@ -1,7 +1,7 @@
 use crate::data_types::*;
 
 #[readonly::make]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SlimeGrid {
     #[readonly]
     width: usize,

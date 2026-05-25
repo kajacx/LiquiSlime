@@ -1,13 +1,15 @@
 use super::*;
 
 pub struct GameState {
+    pub factions: Vec<Faction>,
     pub grids: SlimeGrids,
 }
 
 impl GameState {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(factions: Vec<Faction>, width: usize, height: usize) -> Self {
         Self {
-            grids: SlimeGrids::new(width, height),
+            grids: SlimeGrids::new(factions.len(), width, height),
+            factions,
         }
     }
 

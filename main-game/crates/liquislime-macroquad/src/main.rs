@@ -11,16 +11,18 @@ async fn main() {
     let faction0 = Faction::new(0, liquislime_core::Color::new(255, 128, 0));
     let faction1 = Faction::new(1, liquislime_core::Color::new(0, 255, 64));
 
-    let mut state = GameState::new(50, 50);
+    let factions = vec![faction0, faction1];
+
+    let mut state = GameState::new(factions, 50, 50);
 
     state.grids.set_amount(
-        faction0.id(),
+        state.factions[0].id(),
         TilePosition::new(2, 4),
         SlimeAmount::from_integer(50000),
     );
 
     state.grids.set_amount(
-        faction1.id(),
+        state.factions[1].id(),
         TilePosition::new(8, 5),
         SlimeAmount::from_integer(60000),
     );
@@ -43,15 +45,12 @@ async fn main() {
 }
 
 fn update(state: &mut GameState) {
-    let faction0 = Faction::new(0, liquislime_core::Color::new(255, 128, 0));
-    let faction1 = Faction::new(1, liquislime_core::Color::new(0, 255, 64));
-
     state.update(TimeInterval::from_seconds(get_frame_time() as f64));
 
     if input::is_mouse_button_pressed(MouseButton::Left) {
         #[allow(unused_must_use)]
         state.grids.try_add_amount(
-            faction0.id(),
+            state.factions[0].id(),
             TilePosition::new(
                 (input::mouse_position().0 as i32) / 10,
                 (input::mouse_position().1 as i32) / 10,
@@ -63,7 +62,7 @@ fn update(state: &mut GameState) {
     if input::is_mouse_button_down(MouseButton::Right) {
         #[allow(unused_must_use)]
         state.grids.try_add_amount(
-            faction1.id(),
+            state.factions[1].id(),
             TilePosition::new(
                 (input::mouse_position().0 as i32) / 10,
                 (input::mouse_position().1 as i32) / 10,
@@ -77,27 +76,19 @@ fn update(state: &mut GameState) {
 }
 
 fn render(state: &GameState, texture: &Texture2D) {
-    let faction0 = Faction::new(0, liquislime_core::Color::new(255, 128, 0));
-    let faction1 = Faction::new(1, liquislime_core::Color::new(0, 255, 64));
-
     let hero_pos = Vec2::new(0.0, 0.0);
 
     clear_background(LIGHTGRAY);
 
-    draw_slime_grid(
-        &state.grids.grids[0],
-        0.0,
-        0.0,
-        10.0,
-        parse_color(faction0.color()),
-    );
-    draw_slime_grid(
-        &state.grids.grids[1],
-        0.0,
-        0.0,
-        10.0,
-        parse_color(faction1.color()),
-    );
+    for (index, faction) in state.factions.iter().enumerate() {
+        draw_slime_grid(
+            &state.grids.grids[index],
+            0.0,
+            0.0,
+            10.0,
+            parse_color(faction.color()),
+        );
+    }
 
     draw_texture_ex(
         &texture,
