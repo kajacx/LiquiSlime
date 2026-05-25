@@ -2,6 +2,7 @@ use liquislime_core::{Faction, GameState, SlimeAmount, SlimeGrid, TilePosition, 
 use macroquad::{input, prelude::*};
 
 mod setup;
+mod texture_atlas;
 
 #[macroquad::main("Liquislime")]
 async fn main() {
@@ -57,10 +58,6 @@ fn update(state: &mut GameState) {
             ),
             SlimeAmount::from_integer(1000000),
         );
-
-        if input::mouse_position().0 > 500.0 {
-            panic!("Will this message show up in the console?");
-        }
     }
 
     if input::is_mouse_button_down(MouseButton::Right) {

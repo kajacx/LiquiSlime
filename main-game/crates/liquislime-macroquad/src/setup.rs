@@ -6,15 +6,7 @@ pub fn setup_panic_hook() {
     #[allow(unreachable_code)]
     std::panic::set_hook(Box::new(|panic_info| {
         let msg = panic_info
-            .payload()
-            .downcast_ref::<&str>()
-            .map(|s| *s)
-            .or_else(|| {
-                panic_info
-                    .payload()
-                    .downcast_ref::<String>()
-                    .map(|s| s.as_str())
-            })
+            .payload_as_str()
             .unwrap_or("Unknown panic message");
 
         let location = panic_info.location();
