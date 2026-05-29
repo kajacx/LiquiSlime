@@ -1,5 +1,5 @@
 use liquislime_core::{Faction, GameState, SlimeAmount, SlimeGrid, TilePosition, TimeInterval};
-use macroquad::{input, prelude::*, ui::InputHandler};
+use macroquad::{input, prelude::*};
 
 use crate::input_helper::InputHelper;
 
