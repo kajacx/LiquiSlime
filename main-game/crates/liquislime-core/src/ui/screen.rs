@@ -6,10 +6,10 @@ pub struct Screen {
 }
 
 impl Screen {
-    pub fn new(size: Position) -> Self {
+    pub fn new(size: Position, zoom: f32) -> Self {
         Self {
             size,
-            camera: Camera::new(0.1f32),
+            camera: Camera::new(zoom),
         }
     }
 

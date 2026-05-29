@@ -1,9 +1,12 @@
-use liquislime_core::{Faction, GameState, SlimeAmount, SlimeGrid, TilePosition, TimeInterval};
+use liquislime_core::{
+    Faction, GameState, Screen, SlimeAmount, SlimeGrid, TilePosition, TimeInterval,
+};
 use macroquad::{input, prelude::*};
 
 use crate::input_helper::InputHelper;
 
 mod input_helper;
+mod render;
 mod setup;
 mod texture_atlas;
 
@@ -16,7 +19,8 @@ async fn main() {
 
     let factions = vec![faction0, faction1];
 
-    let mut state = GameState::new(factions, 50, 50);
+    let screen = Screen::new(InputHelper::screen_size(), 0.075f32);
+    let mut state = GameState::new(factions, 50, 50, screen);
 
     state.grids.set_amount(
         state.factions[0].id(),
@@ -31,14 +35,14 @@ async fn main() {
     );
 
     // println!("{:?}", std::env::current_dir().unwrap());
-    let texture = load_texture("assets/lucy.png").await.unwrap();
+    // let texture = load_texture("assets/lucy.png").await.unwrap();
 
     // let mut error = None;
 
     loop {
         // let result = std::panic::catch_unwind(|| {
         update(&mut state);
-        render(&state, &texture);
+        render::render_game(&state);
         // });
 
         // draw_text("IT WORKS!", 20.0, 20.0, 30.0, DARKGRAY);
@@ -54,7 +58,7 @@ fn update(state: &mut GameState) {
         #[allow(unused_must_use)]
         state.grids.try_add_amount(
             state.factions[0].id(),
-            InputHelper::get_mouse_tile_position(),
+            InputHelper::get_mouse_tile_position(&state.screen),
             SlimeAmount::from_integer(1000000),
         );
     }
@@ -63,65 +67,11 @@ fn update(state: &mut GameState) {
         #[allow(unused_must_use)]
         state.grids.try_add_amount(
             state.factions[1].id(),
-            InputHelper::get_mouse_tile_position(),
+            InputHelper::get_mouse_tile_position(&state.screen),
             SlimeAmount::from_integer(10000),
         );
 
         // let mouse_pos = input::mouse_position();
         // hero_pos = Vec2::new(mouse_pos.0, mouse_pos.1);
-    }
-}
-
-fn render(state: &GameState, texture: &Texture2D) {
-    let hero_pos = Vec2::new(0.0, 0.0);
-
-    clear_background(LIGHTGRAY);
-
-    for (index, faction) in state.factions.iter().enumerate() {
-        draw_slime_grid(
-            &state.grids.grids[index],
-            0.0,
-            0.0,
-            10.0,
-            parse_color(faction.color()),
-        );
-    }
-
-    draw_texture_ex(
-        &texture,
-        hero_pos.x - 50.0,
-        hero_pos.y - 50.0,
-        WHITE,
-        DrawTextureParams {
-            dest_size: Some(Vec2::new(100.0, 100.0)),
-            ..Default::default()
-        },
-    );
-}
-
-fn parse_color(color: liquislime_core::Color) -> Color {
-    Color::new(
-        color.r as f32 / 255.0,
-        color.g as f32 / 255.0,
-        color.b as f32 / 255.0,
-        1.0,
-    )
-}
-
-fn draw_slime_grid(grid: &SlimeGrid, offset_x: f32, offset_y: f32, tile_size: f32, color: Color) {
-    for y in 0..grid.height {
-        for x in 0..grid.width {
-            let amount = grid.get_amount(TilePosition::new(x as _, y as _));
-            let amount = amount.as_float() / 1000.0;
-            let alpha_value = amount.clamp(0.0, 1.0);
-            let slime_color = color.with_alpha(alpha_value);
-            draw_rectangle(
-                offset_x + x as f32 * tile_size,
-                offset_y + y as f32 * tile_size,
-                tile_size,
-                tile_size,
-                slime_color,
-            );
-        }
     }
 }
