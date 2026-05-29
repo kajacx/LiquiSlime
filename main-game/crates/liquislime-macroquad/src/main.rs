@@ -1,6 +1,9 @@
 use liquislime_core::{Faction, GameState, SlimeAmount, SlimeGrid, TilePosition, TimeInterval};
-use macroquad::{input, prelude::*};
+use macroquad::{input, prelude::*, ui::InputHandler};
 
+use crate::input_helper::InputHelper;
+
+mod input_helper;
 mod setup;
 mod texture_atlas;
 
@@ -51,10 +54,7 @@ fn update(state: &mut GameState) {
         #[allow(unused_must_use)]
         state.grids.try_add_amount(
             state.factions[0].id(),
-            TilePosition::new(
-                (input::mouse_position().0 as i32) / 10,
-                (input::mouse_position().1 as i32) / 10,
-            ),
+            InputHelper::get_mouse_tile_position(),
             SlimeAmount::from_integer(1000000),
         );
     }
@@ -63,10 +63,7 @@ fn update(state: &mut GameState) {
         #[allow(unused_must_use)]
         state.grids.try_add_amount(
             state.factions[1].id(),
-            TilePosition::new(
-                (input::mouse_position().0 as i32) / 10,
-                (input::mouse_position().1 as i32) / 10,
-            ),
+            InputHelper::get_mouse_tile_position(),
             SlimeAmount::from_integer(10000),
         );
 
