@@ -28,4 +28,10 @@ impl Screen {
     pub fn world_vector_to_screen(&self, world_vector: Position) -> Position {
         world_vector / self.camera.zoom
     }
+
+    pub fn match_screen_and_world(&mut self, screen_position: Position, world_position: Position) {
+        let screen_in_world = self.screen_position_to_world(screen_position);
+        let offset = world_position - screen_in_world;
+        self.camera.position += offset;
+    }
 }

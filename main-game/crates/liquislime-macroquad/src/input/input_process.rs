@@ -25,11 +25,20 @@ fn process_camera_pan_keyboard(state: &mut GameState) {
 }
 
 fn process_camera_zoom(state: &mut GameState) {
+    let world_before_zoom = InputHelper::get_mouse_world_position(&state.screen);
+    let screen_before_zoom = InputHelper::get_mouse_screen_position();
+
     if InputHelper::is_key_pressed(liquislime_core::InputKey::MouseWheelUp) {
         state.screen.camera.change_zoom(-1);
+        state
+            .screen
+            .match_screen_and_world(screen_before_zoom, world_before_zoom);
     }
 
     if InputHelper::is_key_pressed(liquislime_core::InputKey::MouseWheelDown) {
         state.screen.camera.change_zoom(1);
+        state
+            .screen
+            .match_screen_and_world(screen_before_zoom, world_before_zoom);
     }
 }

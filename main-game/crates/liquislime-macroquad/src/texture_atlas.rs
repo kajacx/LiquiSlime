@@ -1,10 +1,12 @@
 use macroquad::prelude::Texture2D;
 use std::collections::HashMap;
 
+#[allow(unused)]
 pub struct TextureAtlas {
     pub textures: HashMap<String, Texture2D>,
 }
 
+#[allow(unused)]
 impl TextureAtlas {
     pub fn new() -> Self {
         Self {
