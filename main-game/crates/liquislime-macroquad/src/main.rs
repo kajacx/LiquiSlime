@@ -1,11 +1,8 @@
-use liquislime_core::{
-    Faction, GameState, Screen, SlimeAmount, SlimeGrid, TilePosition, TimeInterval,
-};
-use macroquad::{input, prelude::*};
+use crate::input::InputHelper;
+use liquislime_core::{Faction, GameState, Screen, SlimeAmount, TilePosition, TimeInterval};
+use macroquad::prelude::*;
 
-use crate::input_helper::InputHelper;
-
-mod input_helper;
+mod input;
 mod render;
 mod setup;
 mod texture_atlas;
@@ -34,13 +31,9 @@ async fn main() {
         SlimeAmount::from_integer(60000),
     );
 
-    // println!("{:?}", std::env::current_dir().unwrap());
-    // let texture = load_texture("assets/lucy.png").await.unwrap();
-
-    // let mut error = None;
-
     loop {
         // let result = std::panic::catch_unwind(|| {
+        state.screen.size = InputHelper::screen_size();
         update(&mut state);
         render::render_game(&state);
         // });
@@ -53,25 +46,5 @@ async fn main() {
 
 fn update(state: &mut GameState) {
     state.update(TimeInterval::from_seconds(get_frame_time() as f64));
-
-    if input::is_mouse_button_pressed(MouseButton::Left) {
-        #[allow(unused_must_use)]
-        state.grids.try_add_amount(
-            state.factions[0].id(),
-            InputHelper::get_mouse_tile_position(&state.screen),
-            SlimeAmount::from_integer(1000000),
-        );
-    }
-
-    if input::is_mouse_button_down(MouseButton::Right) {
-        #[allow(unused_must_use)]
-        state.grids.try_add_amount(
-            state.factions[1].id(),
-            InputHelper::get_mouse_tile_position(&state.screen),
-            SlimeAmount::from_integer(10000),
-        );
-
-        // let mouse_pos = input::mouse_position();
-        // hero_pos = Vec2::new(mouse_pos.0, mouse_pos.1);
-    }
+    input::process_inputs(state);
 }

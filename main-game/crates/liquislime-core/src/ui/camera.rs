@@ -21,6 +21,6 @@ impl Camera {
     }
 
     pub fn pan_by(&mut self, pan_amount: Position) {
-        self.position += pan_amount * self.zoom;
+        self.position += pan_amount / self.zoom / 100.0;
     }
 }

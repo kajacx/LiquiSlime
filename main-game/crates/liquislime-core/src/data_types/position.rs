@@ -13,6 +13,10 @@ impl Position {
         Self { x, y }
     }
 
+    pub fn zero() -> Self {
+        Self::new(0.0, 0.0)
+    }
+
     pub fn to_tile_position(self) -> TilePosition {
         TilePosition::new(self.x.floor() as i32, self.y.floor() as i32)
     }
