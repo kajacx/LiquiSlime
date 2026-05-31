@@ -16,11 +16,11 @@ impl Camera {
         }
     }
 
-    pub fn change_zoom(&mut self, zoom_amount: i32) {
-        self.zoom *= 1.2f32.powf(zoom_amount as f32);
+    pub fn change_zoom(&mut self, zoom_amount: f32) {
+        self.zoom *= zoom_amount;
     }
 
     pub fn pan_by(&mut self, pan_amount: Position) {
-        self.position += pan_amount / self.zoom / 100.0;
+        self.position += pan_amount * self.zoom;
     }
 }
