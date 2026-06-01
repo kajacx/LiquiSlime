@@ -1,0 +1,10 @@
+[package]
+name = "slime-clicker"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+liquislime-adaptor-rust = { path = "../../../adaptor-libs/liquislime-adaptor-rust" }

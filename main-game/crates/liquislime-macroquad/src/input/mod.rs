@@ -8,8 +8,8 @@ pub use input_query_impl::*;
 use liquislime_core::*;
 
 pub fn process_inputs(state: &mut liquislime_core::GameState) {
-    input_process::process_inputs(state);
-    example_interaction(state);
+    // input_process::process_inputs(state);
+    // example_interaction(state);
 }
 
 fn example_interaction(state: &mut liquislime_core::GameState) {

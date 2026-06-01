@@ -10,6 +10,10 @@ mod render;
 mod setup;
 mod texture_atlas;
 
+const BYTES: &[u8] = include_bytes!(
+    "../../../../adaptors/rust/slime-clicker/target/wasm32-unknown-unknown/debug/slime_clicker.wasm"
+);
+
 #[macroquad::main("Liquislime")]
 async fn main() {
     setup::setup_panic_hook();
@@ -25,6 +29,9 @@ async fn main() {
     let mut state = FullState::new(state, input_query);
 
     state.adaptors.push(Box::new(examples::PanCamera));
+    state
+        .adaptors
+        .push(Box::new(liquislime_wasmi::WasmiAdaptor::new(BYTES)));
 
     state.game_state.grids.set_amount(
         state.game_state.factions[0].id(),

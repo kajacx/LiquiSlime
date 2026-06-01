@@ -1,10 +1,5 @@
-use crate::{GameInteraction, InputQuery, TimeInterval};
+use crate::{GameInteraction, TimeInterval};
 
 pub trait BehaviourAdaptor {
-    fn update(
-        &mut self,
-        interaction: &mut GameInteraction,
-        input_query: &dyn InputQuery,
-        delta_time: TimeInterval,
-    );
+    fn update(&mut self, interaction: &mut GameInteraction, delta_time: TimeInterval);
 }

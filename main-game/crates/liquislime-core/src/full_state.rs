@@ -17,9 +17,9 @@ impl FullState {
 
     pub fn update(&mut self, time_passed: TimeInterval) {
         self.game_state.update(time_passed);
-        let mut game_interaction = GameInteraction::new(&mut self.game_state);
+        let mut game_interaction = GameInteraction::new(&mut self.game_state, &*self.input_query);
         for adaptor in &mut self.adaptors {
-            adaptor.update(&mut game_interaction, &*self.input_query, time_passed);
+            adaptor.update(&mut game_interaction, time_passed);
         }
     }
 }

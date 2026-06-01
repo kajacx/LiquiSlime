@@ -1,12 +1,12 @@
 use super::{input_constants, InputHelper};
-use liquislime_core::{GameState, Position};
+use liquislime_core::*;
 
 pub fn process_inputs(state: &mut GameState) {
     process_camera_pan_keyboard(state);
     process_camera_zoom(state);
 }
 
-fn process_camera_pan_keyboard(state: &mut GameState) {}
+fn process_camera_pan_keyboard(_state: &mut GameState) {}
 
 fn process_camera_zoom(state: &mut GameState) {
     let world_before_zoom = InputHelper::get_mouse_world_position(&state.screen);

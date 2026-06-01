@@ -3,6 +3,11 @@
   "files.exclude": {
     "**/.git": true,
     "**/target": false,
-    "/liquislime-web/src": true
-  }
+    "/liquislime-web/src": true,
+  },
+  "rust-analyzer.linkedProjects": [
+    "main-game/Cargo.toml",
+    "adaptor-libs/liquislime-adaptor-rust/Cargo.toml",
+    "adaptors/rust/slime-clicker/Cargo.toml",
+  ]
 }

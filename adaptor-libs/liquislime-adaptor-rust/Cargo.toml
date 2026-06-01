@@ -1,0 +1,11 @@
+[package]
+name = "liquislime-adaptor-rust"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+derive_more = { version = "2.0", features = ["full"] }
+try-lock = { version = "0.2.5" }

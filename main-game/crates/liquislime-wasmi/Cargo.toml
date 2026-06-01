@@ -7,4 +7,5 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-wasmi = "0.51"
+wasmi = "1.0"
+liquislime-core = { path = "../liquislime-core" }
