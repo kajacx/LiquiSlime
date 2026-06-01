@@ -1,8 +1,10 @@
 pub mod input_constants;
 mod input_helper;
 mod input_process;
+mod input_query_impl;
 
 pub use input_helper::*;
+pub use input_query_impl::*;
 use liquislime_core::*;
 
 pub fn process_inputs(state: &mut liquislime_core::GameState) {

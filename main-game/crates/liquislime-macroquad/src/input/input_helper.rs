@@ -45,14 +45,14 @@ impl InputHelper {
         })
     }
 
-    // pub fn is_key_released(key: liquislime_core::InputKey) -> bool {
-    //     Self::key_to_keycode(key).iter().any(|k| match k {
-    //         KeyType::Keyboard(key_code) => input::is_key_released(*key_code),
-    //         KeyType::Mouse(mouse_button) => input::is_mouse_button_released(*mouse_button),
-    //         KeyType::MouseWheelUp => Self::get_mouse_wheel() > 0,
-    //         KeyType::MouseWheelDown => Self::get_mouse_wheel() < 0,
-    //     })
-    // }
+    pub fn is_key_released(key: liquislime_core::InputKey) -> bool {
+        Self::key_to_keycode(key).iter().any(|k| match k {
+            KeyType::Keyboard(key_code) => input::is_key_released(*key_code),
+            KeyType::Mouse(mouse_button) => input::is_mouse_button_released(*mouse_button),
+            KeyType::MouseWheelUp => Self::get_mouse_wheel() > 0,
+            KeyType::MouseWheelDown => Self::get_mouse_wheel() < 0,
+        })
+    }
 
     fn key_to_keycode(key: liquislime_core::InputKey) -> &'static [KeyType] {
         match key {

@@ -1,7 +1,10 @@
-use crate::input::InputHelper;
-use liquislime_core::{Faction, GameState, Screen, SlimeAmount, TilePosition, TimeInterval};
+use crate::input::{InputHelper, InputQueryImpl};
+use liquislime_core::{
+    Faction, FullState, GameState, Screen, SlimeAmount, TilePosition, TimeInterval,
+};
 use macroquad::prelude::*;
 
+mod examples;
 mod input;
 mod render;
 mod setup;
@@ -17,25 +20,32 @@ async fn main() {
     let factions = vec![faction0, faction1];
 
     let screen = Screen::new(InputHelper::screen_size(), 0.075f32);
-    let mut state = GameState::new(factions, 50, 50, screen);
+    let state = GameState::new(factions, 50, 50, screen);
+    let input_query = Box::new(InputQueryImpl);
+    let mut state = FullState::new(state, input_query);
 
-    state.grids.set_amount(
-        state.factions[0].id(),
+    state.adaptors.push(Box::new(examples::PanCamera));
+
+    state.game_state.grids.set_amount(
+        state.game_state.factions[0].id(),
         TilePosition::new(2, 4),
         SlimeAmount::from_integer(50000),
     );
 
-    state.grids.set_amount(
-        state.factions[1].id(),
+    state.game_state.grids.set_amount(
+        state.game_state.factions[1].id(),
         TilePosition::new(8, 5),
         SlimeAmount::from_integer(60000),
     );
 
     loop {
         // let result = std::panic::catch_unwind(|| {
-        state.screen.size = InputHelper::screen_size();
-        update(&mut state);
-        render::render_game(&state);
+        let time_passed = TimeInterval::from_seconds(get_frame_time() as f64);
+
+        state.game_state.screen.size = InputHelper::screen_size();
+        state.update(time_passed);
+        update(&mut state.game_state);
+        render::render_game(&state.game_state);
         // });
 
         // draw_text("IT WORKS!", 20.0, 20.0, 30.0, DARKGRAY);
@@ -45,6 +55,6 @@ async fn main() {
 }
 
 fn update(state: &mut GameState) {
-    state.update(TimeInterval::from_seconds(get_frame_time() as f64));
+    // state.update(TimeInterval::from_seconds(get_frame_time() as f64));
     input::process_inputs(state);
 }
