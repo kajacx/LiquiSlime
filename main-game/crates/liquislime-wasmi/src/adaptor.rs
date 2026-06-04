@@ -1,7 +1,8 @@
 use std::ptr::NonNull;
 
 use liquislime_core::*;
-use wasmi::{Caller, Instance, Linker, Module, Store, Val, F64};
+use wasmi::{Caller, Engine, Instance, Linker, Module, Store, Val, F64};
+use wasmi_wasi::WasiCtx;
 
 use crate::convert::{FromGameApi, ToGameApi};
 
@@ -10,19 +11,32 @@ pub struct WasmiAdaptor {
     instance: Instance,
 }
 
-#[derive(Default)]
 struct StoreData {
     game_interaction: Option<NonNull<GameInteraction<'static>>>,
+    ctx: WasiCtx,
 }
 
 impl WasmiAdaptor {
     pub fn new(bytes: &[u8]) -> Self {
-        let mut store = Store::default();
+        let ctx = wasmi_wasi::WasiCtxBuilder::new()
+            .inherit_stdout()
+            .inherit_stderr()
+            .build();
+
+        let store_data = StoreData {
+            game_interaction: None,
+            ctx,
+        };
+
+        let mut store = Store::new(&Engine::default(), store_data);
 
         let module =
             Module::new(store.engine(), bytes).expect("TODO: Failed to create module from bytes");
 
         let mut linker = Linker::<StoreData>::new(&store.engine());
+
+        wasmi_wasi::add_to_linker(&mut linker, |store: &mut StoreData| &mut store.ctx)
+            .expect("TODO: Failed to add WASI to linker");
 
         linker
             .func_wrap(

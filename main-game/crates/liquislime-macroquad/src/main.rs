@@ -10,8 +10,12 @@ mod render;
 mod setup;
 mod texture_atlas;
 
+// const BYTES: &[u8] = include_bytes!(
+//     "../../../../adaptors/rust/slime-clicker/target/wasm32-unknown-unknown/debug/slime_clicker.wasm"
+// );
+
 const BYTES: &[u8] = include_bytes!(
-    "../../../../adaptors/rust/slime-clicker/target/wasm32-unknown-unknown/debug/slime_clicker.wasm"
+    "../../../../adaptors/rust/slime-clicker/target/wasm32-wasip1/debug/slime_clicker.wasm"
 );
 
 #[macroquad::main("Liquislime")]
