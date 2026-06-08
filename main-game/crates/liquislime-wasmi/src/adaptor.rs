@@ -121,11 +121,9 @@ impl BehaviourAdaptor for WasmiAdaptor {
             .expect("TODO: Failed to find 'update' export")
             .into_func()
             .expect("TODO: func")
-            .call(
-                &mut self.store,
-                &[Val::F64(F64::from_float(time_passed.to_seconds()))],
-                &mut [],
-            )
+            .typed::<f64, ()>(&self.store)
+            .expect("TODO: typed")
+            .call(&mut self.store, time_passed.to_seconds())
             .expect("TODO: Failed to invoke 'update' export");
 
         self.store.data_mut().game_interaction = None;
