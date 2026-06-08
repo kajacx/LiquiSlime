@@ -112,10 +112,8 @@ impl BehaviourAdaptor for WasmiAdaptor {
         println!("Updating Wasmi adaptor");
 
         unsafe {
-            let game_interaction: &'static mut GameInteraction<'static> =
-                std::mem::transmute(game_interaction);
-
-            self.store.data_mut().game_interaction = Some(NonNull::from_mut(game_interaction));
+            let game_interaction = NonNull::from_mut(game_interaction.with_static_lifetime());
+            self.store.data_mut().game_interaction = Some(game_interaction);
         }
 
         self.instance

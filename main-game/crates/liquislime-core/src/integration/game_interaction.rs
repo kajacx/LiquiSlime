@@ -53,4 +53,12 @@ impl<'a> GameInteraction<'a> {
             .screen
             .screen_position_to_world(self.get_mouse_screen_position())
     }
+
+    /**
+     * Safety: This will just remove the lifetime at compile time, the caller must
+     * make sure to not use the returned reference for longer than they can hold the original reference.
+     */
+    pub unsafe fn with_static_lifetime(&mut self) -> &mut GameInteraction<'static> {
+        &mut *(self as *mut GameInteraction<'a> as *mut GameInteraction<'static>)
+    }
 }
