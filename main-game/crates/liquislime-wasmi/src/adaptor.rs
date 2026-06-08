@@ -1,7 +1,7 @@
 use std::ptr::NonNull;
 
 use liquislime_core::*;
-use wasmi::{Caller, Engine, Instance, Linker, Module, Store, Val, F64};
+use wasmi::{Caller, Engine, Instance, Linker, Module, Store};
 use wasmi_wasi::WasiCtx;
 
 use crate::convert::{FromGameApi, ToGameApi};
@@ -74,11 +74,6 @@ impl WasmiAdaptor {
                             .is_key_pressed(InputKey::from_game_api(key_core))
                     };
 
-                    println!(
-                        "is_key_pressed called with key_core: {}, result: {}",
-                        key_core, result
-                    );
-
                     Ok(result.to_game_api())
                 },
             )
@@ -109,8 +104,6 @@ impl WasmiAdaptor {
 
 impl BehaviourAdaptor for WasmiAdaptor {
     fn update(&mut self, game_interaction: &mut GameInteraction, time_passed: TimeInterval) {
-        println!("Updating Wasmi adaptor");
-
         unsafe {
             let game_interaction = NonNull::from_mut(game_interaction.with_static_lifetime());
             self.store.data_mut().game_interaction = Some(game_interaction);

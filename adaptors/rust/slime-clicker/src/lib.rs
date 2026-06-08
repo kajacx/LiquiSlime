@@ -8,9 +8,7 @@ impl BehaviourAdaptor for ClickerAdaptor {
     }
 
     fn update(&mut self, delta_time: f64) {
-        println!("Hello from Rust! Delta time: {delta_time}");
         let pos = GameApi::get_mouse_world_position();
-        println!("Mouse world position: ({}, {})", pos.x, pos.y);
         if GameApi::is_key_pressed(InputKey::LeftMouse) {
             println!("Mouse left button is pressed!");
             GameApi::add_slime_amount(pos.to_tile_position(), FactionId::new(0), 100_000.0);
