@@ -1,4 +1,4 @@
 mod adaptor;
-mod convert;
+mod api;
 
 pub use adaptor::WasmiAdaptor;

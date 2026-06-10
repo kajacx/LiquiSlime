@@ -4,16 +4,16 @@ use liquislime_core::*;
 use wasmi::{Caller, Engine, Instance, Linker, Module, Store};
 use wasmi_wasi::WasiCtx;
 
-use crate::convert::{FromGameApi, ToGameApi};
+use crate::api::{add_imported_game_functions, FromGameApi, ToGameApi};
 
 pub struct WasmiAdaptor {
     store: Store<StoreData>,
     instance: Instance,
 }
 
-struct StoreData {
-    game_interaction: Option<NonNull<GameInteraction<'static>>>,
-    ctx: WasiCtx,
+pub(crate) struct StoreData {
+    pub(crate) game_interaction: Option<NonNull<GameInteraction<'static>>>,
+    pub(crate) ctx: WasiCtx,
 }
 
 impl WasmiAdaptor {
@@ -38,61 +38,7 @@ impl WasmiAdaptor {
         wasmi_wasi::add_to_linker(&mut linker, |store: &mut StoreData| &mut store.ctx)
             .expect("TODO: Failed to add WASI to linker");
 
-        linker
-            .func_wrap(
-                "liquislime_api",
-                "add_slime_amount",
-                |caller: Caller<StoreData>,
-                 faction: <FactionId as FromGameApi>::Api,
-                 position: <TilePosition as FromGameApi>::Api,
-                 amount: f64| {
-                    let mut game_interaction = caller.data().game_interaction.unwrap();
-
-                    unsafe {
-                        game_interaction.as_mut().add_slime(
-                            FactionId::from_game_api(faction),
-                            TilePosition::from_game_api(position),
-                            SlimeAmount::from_float(amount),
-                        );
-                    }
-
-                    Ok(())
-                },
-            )
-            .expect("TODO: Failed to define 'get_game_interaction' function");
-
-        linker
-            .func_wrap(
-                "liquislime_api",
-                "is_key_pressed",
-                |caller: Caller<StoreData>, key_core: <InputKey as FromGameApi>::Api| {
-                    let mut game_interaction = caller.data().game_interaction.unwrap();
-
-                    let result = unsafe {
-                        game_interaction
-                            .as_mut()
-                            .is_key_pressed(InputKey::from_game_api(key_core))
-                    };
-
-                    Ok(result.to_game_api())
-                },
-            )
-            .expect("TODO: Failed to define 'is_key_pressed' function");
-
-        linker
-            .func_wrap(
-                "liquislime_api",
-                "get_mouse_world_position",
-                |caller: Caller<StoreData>| {
-                    let game_interaction =
-                        unsafe { caller.data().game_interaction.unwrap().as_mut() };
-
-                    let result = game_interaction.get_mouse_world_position();
-
-                    Ok(result.to_game_api())
-                },
-            )
-            .expect("TODO: Failed to define 'get_mouse_world_position' function");
+        add_imported_game_functions(&mut linker).expect("TODO: linker error");
 
         let instance = linker
             .instantiate_and_start(&mut store, &module)

@@ -1,4 +1,4 @@
-use crate::convert::{convert_helpers, NativeWasmType};
+use crate::api::{convert_helpers, NativeWasmType};
 use liquislime_core::*;
 
 pub trait FromGameApi: Sized {
