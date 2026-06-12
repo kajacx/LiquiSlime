@@ -4,7 +4,7 @@ use liquislime_core::*;
 use wasmi::{Caller, Engine, Instance, Linker, Module, Store};
 use wasmi_wasi::WasiCtx;
 
-use crate::api::{add_imported_game_functions, FromGameApi, ToGameApi};
+use crate::api::add_imported_game_functions;
 
 pub struct WasmiAdaptor {
     store: Store<StoreData>,
@@ -40,6 +40,149 @@ impl WasmiAdaptor {
 
         add_imported_game_functions(&mut linker).expect("TODO: linker error");
 
+        linker
+            .func_wrap(
+                "wasi_snapshot_preview1",
+                "adapter_close_badfd",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("adapter_close_badfd called: {_val}");
+                    0
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:io/poll@0.2.0",
+                "[resource-drop]pollable",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("[resource-drop]pollable called: {_val}");
+                    ()
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:io/streams@0.2.0",
+                "[resource-drop]input-stream",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("[resource-drop]input-stream called: {_val}");
+                    ()
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:io/streams@0.2.0",
+                "[resource-drop]output-stream",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("[resource-drop]output-stream called: {_val}");
+                    ()
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:sockets/udp@0.2.0",
+                "[resource-drop]udp-socket",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("[resource-drop]udp-socket called: {_val}");
+                    ()
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:sockets/udp@0.2.0",
+                "[resource-drop]incoming-datagram-stream",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("[resource-drop]incoming-datagram-stream called: {_val}");
+                    ()
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:sockets/udp@0.2.0",
+                "[resource-drop]outgoing-datagram-stream",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("[resource-drop]outgoing-datagram-stream called: {_val}");
+                    ()
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:sockets/tcp@0.2.0",
+                "[resource-drop]tcp-socket",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("[resource-drop]tcp-socket called: {_val}");
+                    ()
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:sockets/tcp@0.2.0",
+                "[method]tcp-socket.finish-connect",
+                |_caller: Caller<_>, _val1: i32, _val2: i32| {
+                    println!("[method]tcp-socket.finish-connect called: {_val1},  {_val2}");
+                    ()
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:io/poll@0.2.0",
+                "poll",
+                |_caller: Caller<_>, _val1: i32, _val2: i32, _val3: i32| {
+                    println!("poll called: {_val1},  {_val2},  {_val3}");
+                    ()
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:io/streams@0.2.0",
+                "[method]input-stream.subscribe",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("[method]input-stream.subscribe called: {_val}");
+                    0
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:io/streams@0.2.0",
+                "[method]output-stream.subscribe",
+                |_caller: Caller<_>, _val: i32| {
+                    println!("[method]output-stream.subscribe called: {_val}");
+                    0
+                },
+            )
+            .unwrap();
+
+        linker
+            .func_wrap(
+                "wasi:clocks/monotonic-clock@0.2.0",
+                "subscribe-duration",
+                |_caller: Caller<_>, _val: i64| {
+                    println!("[method]subscribe-duration called: {_val}");
+                    0
+                },
+            )
+            .unwrap();
+
         let instance = linker
             .instantiate_and_start(&mut store, &module)
             .expect("TODO: Failed to create instance from module");
@@ -55,15 +198,27 @@ impl BehaviourAdaptor for WasmiAdaptor {
             self.store.data_mut().game_interaction = Some(game_interaction);
         }
 
+        // self.instance
+        //     .get_export(&self.store, "update")
+        //     .expect("TODO: Failed to find 'update' export")
+        //     .into_func()
+        //     .expect("TODO: func")
+        //     .typed::<f64, ()>(&self.store)
+        //     .expect("TODO: typed")
+        //     .call(&mut self.store, time_passed.to_seconds())
+        //     .expect("TODO: Failed to invoke 'update' export");
+
+        println!("Calling _start");
+
         self.instance
-            .get_export(&self.store, "update")
-            .expect("TODO: Failed to find 'update' export")
+            .get_export(&self.store, "_start")
+            .expect("TODO: Failed to find '_start' export")
             .into_func()
             .expect("TODO: func")
-            .typed::<f64, ()>(&self.store)
+            .typed::<(), ()>(&self.store)
             .expect("TODO: typed")
-            .call(&mut self.store, time_passed.to_seconds())
-            .expect("TODO: Failed to invoke 'update' export");
+            .call(&mut self.store, ())
+            .expect("TODO: Failed to invoke '_start' export");
 
         self.store.data_mut().game_interaction = None;
     }

@@ -1,0 +1,11 @@
+# version: '3.7'
+
+services:
+  slime-dragger-html:
+    container_name: nginx
+    image: nginx
+    volumes:
+      - "./html:/usr/share/nginx/html"
+    ports:
+      - "80:80"
+    restart: unless-stopped

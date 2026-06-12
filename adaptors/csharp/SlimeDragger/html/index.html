@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <script type="importmap">
+      {
+        "imports": {
+          "@bytecodealliance/preview2-shim/cli": "https://esm.sh/@bytecodealliance/preview2-shim/cli",
+          "@bytecodealliance/preview2-shim/clocks": "https://esm.sh/@bytecodealliance/preview2-shim/clocks",
+          "@bytecodealliance/preview2-shim/filesystem": "https://esm.sh/@bytecodealliance/preview2-shim/filesystem",
+          "@bytecodealliance/preview2-shim/http": "https://esm.sh/@bytecodealliance/preview2-shim/http",
+          "@bytecodealliance/preview2-shim/io": "https://esm.sh/@bytecodealliance/preview2-shim/io",
+          "@bytecodealliance/preview2-shim/random": "https://esm.sh/@bytecodealliance/preview2-shim/random",
+          "@bytecodealliance/preview2-shim/sockets": "https://esm.sh/@bytecodealliance/preview2-shim/sockets"
+        }
+      }
+    </script>
+
+    <!-- <script src="transpiled/dotnet.js"></script> -->
+    <script type="module">
+      //   import { WASIShim } from "@bytecodealliance/preview2-shim/instantiation";
+      import { WASIShim } from "https://esm.sh/@bytecodealliance/preview2-shim/instantiation";
+      import { instantiate } from "./transpiled/dotnet.js";
+
+      console.log(instantiate);
+
+      const loader = async (path) => {
+        const buf = await fetch(`./transpiled/${path}`);
+        return await WebAssembly.compile(await buf.arrayBuffer());
+      };
+
+      const importObject = new WASIShim().getImportObject();
+
+      importObject["wasi:sockets/ip-name-lookup"].ResolveAddressStream =
+        "DUMMY";
+      importObject["wasi:sockets/network"].Network = "DUMMY";
+      importObject["wasi:sockets/tcp"].TcpSocket = "DUMMY";
+      importObject["wasi:sockets/udp"].IncomingDatagramStream = "DUMMY";
+      importObject["wasi:sockets/udp"].OutgoingDatagramStream = "DUMMY";
+      importObject["wasi:sockets/udp"].UdpSocket = "DUMMY";
+
+      const instance = await instantiate(loader, importObject);
+      //   dotnet.run.run();
+      console.log(instance);
+      instance.run.run();
+    </script>
+  </head>
+  <body>
+    <h1>Check the console</h1>
+  </body>
+</html>
