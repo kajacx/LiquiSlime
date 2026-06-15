@@ -2,32 +2,28 @@
 set -e
 
 # Run from parent folder
-mode="$1"
 
 echo "Copying liquislime source"
-rm -rf liquislime-web/.cargo
-rm -rf liquislime-web/src
-rm -rf liquislime-web/Cargo.toml
-cp -r liquislime-bevy/.cargo liquislime-web/
-cp -r liquislime-bevy/src liquislime-web/
-cp -r liquislime-bevy/Cargo.toml liquislime-web/
-cp -r liquislime-bevy/rust-toolchain.toml liquislime-web/rust-toolchain.toml
+rm -rf build/macroquad-webbuild/Cargo.toml
+rm -rf build/macroquad-webbuild/crates
+cp -r main-game/Cargo.toml build/macroquad-webbuild/
+cp -r main-game/crates build/macroquad-webbuild/
 
-echo "Copying liquislime assets"
-rm -rf liquislime-web/liquislime-webserver/assets
-cp -r liquislime-bevy/assets liquislime-web/liquislime-webserver/
+echo "Compiling game for wasm32 target"
+cd build/macroquad-webbuild
+cargo build -p liquislime-macroquad --target wasm32-unknown-unknown
 
-echo "Compiling bevy game for wasm32 target"
-cd liquislime-web
-cargo build $mode --target=wasm32-unknown-unknown
+echo "Copying DEBUG wasm file"
+# wasm-bindgen --out-dir ./liquislime-webserver/ --target web ./target/wasm32-unknown-unknown/debug/liquislime-bevy.wasm
+cp ./target/wasm32-unknown-unknown/debug/liquislime-macroquad.wasm ../../liquislime-docker/web-files/liquislime-macroquad.wasm
+cd ../..
 
-if [ "$mode" = "--release" ]; then
-  echo "Copying RELEASE wasm file"
-  wasm-bindgen --out-dir ./liquislime-webserver/ --target web ./target/wasm32-unknown-unknown/release/liquislime-bevy.wasm
-else
-  echo "Copying DEBUG wasm file"
-  wasm-bindgen --out-dir ./liquislime-webserver/ --target web ./target/wasm32-unknown-unknown/debug/liquislime-bevy.wasm
-fi
+echo "Copying assets"
+rm -rf liquislime-docker/web-files/assets
+cp -r main-game/assets liquislime-docker/web-files
 
-echo "Bevy game built in WASM"
+echo "Starting docker"
+cd liquislime-docker
+docker-compose up -d
 
+echo "Done, view the game at http://127.0.0.1:8089/"

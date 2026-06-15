@@ -3,5 +3,6 @@ set -e
 
 # Run from parent folder
 
-./scripts/build.sh
-./scripts/run-sys.sh
+cd adaptors
+./compile-adaptors.sh
+cd ..
