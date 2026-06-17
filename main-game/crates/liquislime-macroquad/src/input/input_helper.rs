@@ -9,10 +9,12 @@ impl InputHelper {
         Position { x, y }
     }
 
+    #[allow(unused)]
     pub fn get_mouse_world_position(screen: &Screen) -> Position {
         screen.screen_position_to_world(Self::get_mouse_screen_position())
     }
 
+    #[allow(unused)]
     pub fn get_mouse_tile_position(screen: &Screen) -> TilePosition {
         Self::get_mouse_world_position(screen).to_tile_position()
     }

@@ -1,7 +1,9 @@
-use std::ptr::NonNull;
+use std::{error::Error, ptr::NonNull};
 
 use liquislime_core::*;
 use waclay::{Component, Engine, Instance, Linker, Store};
+
+use crate::wasip2::{add_to_linker, LoopingRng};
 
 pub struct WasmiComponentAdaptor {
     store: Store<StoreData, wasmi_runtime_layer::Engine>,
@@ -10,13 +12,17 @@ pub struct WasmiComponentAdaptor {
 
 pub(crate) struct StoreData {
     pub(crate) game_interaction: Option<NonNull<GameInteraction<'static>>>,
-    // pub(crate) ctx: WasiCtx,
+    pub rng: LoopingRng,
 }
+
+pub(crate) type StoreType = Store<StoreData, wasmi_runtime_layer::Engine>;
+pub(crate) type ResultType<T> = Result<T, Box<dyn Error>>;
 
 impl WasmiComponentAdaptor {
     pub fn new(bytes: &[u8]) -> Self {
         let store_data = StoreData {
             game_interaction: None,
+            rng: LoopingRng::new(),
         };
 
         let engine = Engine::new(wasmi_runtime_layer::Engine::default());
@@ -26,7 +32,11 @@ impl WasmiComponentAdaptor {
         let module = Component::new(store.engine(), bytes)
             .expect("TODO: Failed to create component from bytes");
 
-        let linker = Linker::default();
+        let mut linker = Linker::default();
+
+        // add_wasip2_to_linker(&mut store, &mut linker).unwrap();
+
+        add_to_linker(&mut store, &mut linker).unwrap();
 
         let instance = linker
             .instantiate(&mut store, &module)
@@ -37,7 +47,7 @@ impl WasmiComponentAdaptor {
 }
 
 impl BehaviourAdaptor for WasmiComponentAdaptor {
-    fn update(&mut self, game_interaction: &mut GameInteraction, time_passed: TimeInterval) {
+    fn update(&mut self, game_interaction: &mut GameInteraction, _time_elapsed: TimeInterval) {
         unsafe {
             let game_interaction = NonNull::from_mut(game_interaction.with_static_lifetime());
             self.store.data_mut().game_interaction = Some(game_interaction);
@@ -46,11 +56,18 @@ impl BehaviourAdaptor for WasmiComponentAdaptor {
         let update = self
             .instance
             .exports()
-            .root()
-            .func("update")
-            .expect("Get update func");
+            .instance(&"wasi:cli/run@0.2.0".try_into().unwrap())
+            .expect("get wasi cli instance")
+            .func("run")
+            .expect("get run function")
+            .typed::<(), Result<(), ()>>()
+            .expect("main run function as typed");
 
-        println!("Found update func: {update:?}");
+        // println!("Found update func: {update:?}");
+        update
+            .call(&mut self.store, ())
+            .expect("call main function")
+            .expect("main function result");
 
         self.store.data_mut().game_interaction = None;
     }

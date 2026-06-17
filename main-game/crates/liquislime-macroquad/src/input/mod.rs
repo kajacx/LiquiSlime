@@ -7,15 +7,14 @@ pub use input_helper::*;
 pub use input_query_impl::*;
 use liquislime_core::*;
 
-pub fn process_inputs(state: &mut liquislime_core::GameState) {
+pub fn process_inputs(_state: &mut liquislime_core::GameState) {
     // input_process::process_inputs(state);
     // example_interaction(state);
 }
 
-fn example_interaction(state: &mut liquislime_core::GameState) {
+fn _example_interaction(state: &mut liquislime_core::GameState) {
     if InputHelper::is_key_pressed(liquislime_core::InputKey::LeftMouse) {
-        #[allow(unused_must_use)]
-        state.grids.try_add_amount(
+        let _ = state.grids.try_add_amount(
             state.factions[0].id(),
             InputHelper::get_mouse_tile_position(&state.screen),
             SlimeAmount::from_integer(1000000),
@@ -23,8 +22,7 @@ fn example_interaction(state: &mut liquislime_core::GameState) {
     }
 
     if InputHelper::is_key_down(liquislime_core::InputKey::RightMouse) {
-        #[allow(unused_must_use)]
-        state.grids.try_add_amount(
+        let _ = state.grids.try_add_amount(
             state.factions[1].id(),
             InputHelper::get_mouse_tile_position(&state.screen),
             SlimeAmount::from_integer(10000),

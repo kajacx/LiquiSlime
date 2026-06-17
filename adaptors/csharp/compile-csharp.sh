@@ -4,6 +4,13 @@ set -e
 # Call from this directory
 
 cd SlimeDragger
-dotnet build
-wasm2wat bin/Debug/net10.0/wasiconsole.wasm > bin/Debug/net10.0/wasiconsole.wat
+find . -name "*.wasm" -type f -delete
+find . -name "*.wat" -type f -delete
+find . -name "*.wit" -type f -delete
+# dotnet clean -r wasi-wasm
+dotnet publish -r wasi-wasm
+# wasm2wat bin/Debug/net10.0/wasiconsole.wasm > bin/Debug/net10.0/wasiconsole.wat
+wasm-tools component wit bin/Release/net10.0/wasi-wasm/publish/wasiconsole.wasm > wasiconsole.wit
 cd ..
+
+./generate-wat.sh

@@ -15,13 +15,16 @@ mod texture_atlas;
 // );
 
 const BYTES_CLICKER: &[u8] = include_bytes!(
-    // "../../../../adaptors/rust/slime-clicker/target/wasm32-wasip1/debug/slime_clicker.wasm"
-    "../../../../adaptors/csharp/SlimeDragger/bin/Debug/net10.0/wasiconsole.wasm",
-    // "E:/Programming/CS/MyFirstWasiApp/bin/Debug/net10.0/MyFirstWasiApp.wasm"
+    "../../../../adaptors/rust/slime-clicker/target/wasm32-wasip1/debug/slime_clicker.wasm" // "../../../../adaptors/csharp/SlimeDragger/bin/Debug/net10.0/wasiconsole.wasm",
+                                                                                            // "../../../../adaptors/csharp/SlimeDragger/bin/Debug/net8.0/wasiconsole.wasm",
+                                                                                            // "E:/Programming/CS/MyFirstWasiApp/bin/Debug/net10.0/MyFirstWasiApp.wasm"
 );
-// const BYTES_DRAGGER: &[u8] = include_bytes!(
-//     "../../../../adaptors/csharp/SlimeDragger/wasiconsole/bin/Debug/net10.0/wasi-wasm/AppBundle/dotnet.wasm"
-// );
+const BYTES_DRAGGER: &[u8] = include_bytes!(
+    // "../../../../adaptors/csharp/SlimeDragger/wasiconsole/bin/Debug/net10.0/wasi-wasm/AppBundle/dotnet.wasm"
+    // "../../../../adaptors/csharp/SlimeDragger/bin/Debug/net10.0/wasiconsole.wasm",
+    // "../../../../adaptors/csharp/SlimeDragger/bin/Release/net10.0/wasi-wasm/publish/wasiconsole.wasm",
+    "../../../../adaptors/csharp/SlimeDragger/bin/Release/net10.0/wasi-wasm/native/wasiconsole.wasm",
+);
 
 #[macroquad::main("Liquislime")]
 async fn main() {
@@ -37,18 +40,20 @@ async fn main() {
     let input_query = Box::new(InputQueryImpl);
     let mut state = FullState::new(state, input_query);
 
-    println!("loading plugin");
+    println!("loading plugin1");
     state.adaptors.push(Box::new(examples::PanCamera));
     state
         .adaptors
         .push(Box::new(liquislime_wasmi::WasmiAdaptor::new(BYTES_CLICKER)));
 
-    println!("loading plugin done");
-    // state
-    //     .adaptors
-    //     .push(Box::new(liquislime_wasmi::WasmiComponentAdaptor::new(
-    //         BYTES_DRAGGER,
-    //     )));
+    println!("loading plugin2");
+    state
+        .adaptors
+        .push(Box::new(liquislime_wasmi::WasmiComponentAdaptor::new(
+            BYTES_DRAGGER,
+        )));
+
+    println!("loading plugins done");
 
     state.game_state.grids.set_amount(
         state.game_state.factions[0].id(),

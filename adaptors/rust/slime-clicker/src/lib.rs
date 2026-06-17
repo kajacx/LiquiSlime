@@ -7,7 +7,7 @@ impl BehaviourAdaptor for ClickerAdaptor {
         ClickerAdaptor
     }
 
-    fn update(&mut self, delta_time: f64) {
+    fn update(&mut self, _time_passed: f64) {
         let pos = GameApi::get_mouse_world_position();
         if GameApi::is_key_pressed(InputKey::LeftMouse) {
             println!("Mouse left button is pressed!");

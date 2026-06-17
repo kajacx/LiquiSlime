@@ -1,6 +1,6 @@
 # Liquislime!
 
-A video game inspired by the Creeper World video games written in Bevy.
+A proof of concept video game inspired by the Creeper World series.
 
 ## Customizable unit behavior
 

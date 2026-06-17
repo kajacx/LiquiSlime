@@ -187,38 +187,43 @@ impl WasmiAdaptor {
             .instantiate_and_start(&mut store, &module)
             .expect("TODO: Failed to create instance from module");
 
+        let start = instance.get_export(&store, "_start");
+        if let Some(start) = start {
+            start
+                .into_func()
+                .expect("TODO: func")
+                .typed::<(), ()>(&store)
+                .expect("TODO: typed")
+                .call(&mut store, ())
+                .expect("TODO: Failed to invoke '_start' export");
+        }
+
         Self { store, instance }
     }
 }
 
 impl BehaviourAdaptor for WasmiAdaptor {
-    fn update(&mut self, game_interaction: &mut GameInteraction, time_passed: TimeInterval) {
+    fn update(&mut self, game_interaction: &mut GameInteraction, time_elapsed: TimeInterval) {
         unsafe {
             let game_interaction = NonNull::from_mut(game_interaction.with_static_lifetime());
             self.store.data_mut().game_interaction = Some(game_interaction);
         }
 
-        // self.instance
-        //     .get_export(&self.store, "update")
-        //     .expect("TODO: Failed to find 'update' export")
-        //     .into_func()
-        //     .expect("TODO: func")
-        //     .typed::<f64, ()>(&self.store)
-        //     .expect("TODO: typed")
-        //     .call(&mut self.store, time_passed.to_seconds())
-        //     .expect("TODO: Failed to invoke 'update' export");
+        println!("Calling update");
 
-        println!("Calling _start");
-
-        self.instance
-            .get_export(&self.store, "_start")
-            .expect("TODO: Failed to find '_start' export")
+        let result = self
+            .instance
+            .get_export(&self.store, "update")
+            .expect("TODO: Failed to find 'update' export")
             .into_func()
             .expect("TODO: func")
-            .typed::<(), ()>(&self.store)
+            .typed::<f64, ()>(&self.store)
             .expect("TODO: typed")
-            .call(&mut self.store, ())
-            .expect("TODO: Failed to invoke '_start' export");
+            .call(&mut self.store, time_elapsed.to_seconds());
+
+        if let Err(error) = result {
+            println!("Error when calling update: {error}");
+        }
 
         self.store.data_mut().game_interaction = None;
     }
