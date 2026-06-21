@@ -1,7 +1,7 @@
 use std::{error::Error, ptr::NonNull};
 
 use liquislime_core::*;
-use waclay::{Component, Engine, Instance, Linker, Store};
+use waclay::{Component, Engine, Func, FuncType, Instance, Linker, Store, ValueType};
 
 use crate::wasip2::{add_to_linker, LoopingRng};
 
@@ -38,6 +38,21 @@ impl WasmiComponentAdaptor {
 
         add_to_linker(&mut store, &mut linker).unwrap();
 
+        let linker_instance = linker
+            .define_instance("example:component/operations".try_into().unwrap())
+            .unwrap();
+
+        linker_instance
+            .define_func(
+                "add",
+                Func::new(
+                    &mut store,
+                    FuncType::new([ValueType::S32, ValueType::S32], [ValueType::S32]),
+                    |_, _, _| Ok(()),
+                ),
+            )
+            .unwrap();
+
         let instance = linker
             .instantiate(&mut store, &module)
             .expect("TODO: Failed to create instance from module");
@@ -53,21 +68,32 @@ impl BehaviourAdaptor for WasmiComponentAdaptor {
             self.store.data_mut().game_interaction = Some(game_interaction);
         }
 
+        // let update = self
+        //     .instance
+        //     .exports()
+        //     .instance(&"wasi:cli/run@0.2.0".try_into().unwrap())
+        //     .expect("get wasi cli instance")
+        //     .func("run")
+        //     .expect("get run function")
+        //     .typed::<(), Result<(), ()>>()
+        //     .expect("main run function as typed");
+
         let update = self
             .instance
             .exports()
-            .instance(&"wasi:cli/run@0.2.0".try_into().unwrap())
-            .expect("get wasi cli instance")
-            .func("run")
-            .expect("get run function")
-            .typed::<(), Result<(), ()>>()
-            .expect("main run function as typed");
+            .instance(&"example:component/operations".try_into().unwrap())
+            .expect("get example:component instance")
+            .func("add")
+            .expect("get add function")
+            .typed::<(i32, i32), i32>()
+            .expect("add function as typed");
 
         // println!("Found update func: {update:?}");
-        update
-            .call(&mut self.store, ())
-            .expect("call main function")
-            .expect("main function result");
+        let result = update
+            .call(&mut self.store, (5, 6))
+            .expect("call add function");
+
+        println!("ADD RESULT: {result}");
 
         self.store.data_mut().game_interaction = None;
     }

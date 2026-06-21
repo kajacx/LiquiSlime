@@ -1,0 +1,237 @@
+package root:component;
+
+world root {
+  import wasi:io/poll@0.2.6;
+  import wasi:clocks/monotonic-clock@0.2.6;
+  import wasi:io/error@0.2.6;
+  import wasi:io/streams@0.2.6;
+  import wasi:cli/environment@0.2.6;
+  import wasi:cli/exit@0.2.6;
+  import wasi:cli/stdin@0.2.6;
+  import wasi:cli/stdout@0.2.6;
+  import wasi:cli/stderr@0.2.6;
+  import wasi:cli/terminal-input@0.2.6;
+  import wasi:cli/terminal-output@0.2.6;
+  import wasi:cli/terminal-stdin@0.2.6;
+  import wasi:cli/terminal-stdout@0.2.6;
+  import wasi:cli/terminal-stderr@0.2.6;
+  import wasi:clocks/wall-clock@0.2.6;
+  import wasi:filesystem/types@0.2.6;
+  import wasi:filesystem/preopens@0.2.6;
+  import wasi:random/random@0.2.6;
+
+  export example:component/operations;
+}
+package wasi:io@0.2.6 {
+  interface poll {
+    resource pollable {
+      block: func();
+    }
+  }
+  interface error {
+    resource error;
+  }
+  interface streams {
+    use error.{error};
+    use poll.{pollable};
+
+    resource input-stream;
+
+    resource output-stream {
+      check-write: func() -> result<u64, stream-error>;
+      write: func(contents: list<u8>) -> result<_, stream-error>;
+      blocking-flush: func() -> result<_, stream-error>;
+      subscribe: func() -> pollable;
+    }
+
+    variant stream-error {
+      last-operation-failed(error),
+      closed,
+    }
+  }
+}
+
+
+package wasi:clocks@0.2.6 {
+  interface monotonic-clock {
+    use wasi:io/poll@0.2.6.{pollable};
+
+    type instant = u64;
+
+    type duration = u64;
+
+    now: func() -> instant;
+
+    subscribe-instant: func(when: instant) -> pollable;
+
+    subscribe-duration: func(when: duration) -> pollable;
+  }
+  interface wall-clock {
+    record datetime {
+      seconds: u64,
+      nanoseconds: u32,
+    }
+
+    now: func() -> datetime;
+  }
+}
+
+
+package wasi:cli@0.2.6 {
+  interface environment {
+    get-environment: func() -> list<tuple<string, string>>;
+  }
+  interface exit {
+    exit: func(status: result);
+  }
+  interface stdin {
+    use wasi:io/streams@0.2.6.{input-stream};
+
+    get-stdin: func() -> input-stream;
+  }
+  interface stdout {
+    use wasi:io/streams@0.2.6.{output-stream};
+
+    get-stdout: func() -> output-stream;
+  }
+  interface stderr {
+    use wasi:io/streams@0.2.6.{output-stream};
+
+    get-stderr: func() -> output-stream;
+  }
+  interface terminal-input {
+    resource terminal-input;
+  }
+  interface terminal-output {
+    resource terminal-output;
+  }
+  interface terminal-stdin {
+    use terminal-input.{terminal-input};
+
+    get-terminal-stdin: func() -> option<terminal-input>;
+  }
+  interface terminal-stdout {
+    use terminal-output.{terminal-output};
+
+    get-terminal-stdout: func() -> option<terminal-output>;
+  }
+  interface terminal-stderr {
+    use terminal-output.{terminal-output};
+
+    get-terminal-stderr: func() -> option<terminal-output>;
+  }
+}
+
+
+package wasi:filesystem@0.2.6 {
+  interface types {
+    use wasi:io/streams@0.2.6.{input-stream, output-stream};
+    use wasi:clocks/wall-clock@0.2.6.{datetime};
+
+    resource descriptor {
+      read-via-stream: func(offset: filesize) -> result<input-stream, error-code>;
+      write-via-stream: func(offset: filesize) -> result<output-stream, error-code>;
+      append-via-stream: func() -> result<output-stream, error-code>;
+      get-flags: func() -> result<descriptor-flags, error-code>;
+      stat: func() -> result<descriptor-stat, error-code>;
+      metadata-hash: func() -> result<metadata-hash-value, error-code>;
+    }
+
+    type filesize = u64;
+
+    enum error-code {
+      access,
+      would-block,
+      already,
+      bad-descriptor,
+      busy,
+      deadlock,
+      quota,
+      exist,
+      file-too-large,
+      illegal-byte-sequence,
+      in-progress,
+      interrupted,
+      invalid,
+      io,
+      is-directory,
+      loop,
+      too-many-links,
+      message-size,
+      name-too-long,
+      no-device,
+      no-entry,
+      no-lock,
+      insufficient-memory,
+      insufficient-space,
+      not-directory,
+      not-empty,
+      not-recoverable,
+      unsupported,
+      no-tty,
+      no-such-device,
+      overflow,
+      not-permitted,
+      pipe,
+      read-only,
+      invalid-seek,
+      text-file-busy,
+      cross-device,
+    }
+
+    flags descriptor-flags {
+      read,
+      write,
+      file-integrity-sync,
+      data-integrity-sync,
+      requested-write-sync,
+      mutate-directory,
+    }
+
+    enum descriptor-type {
+      unknown,
+      block-device,
+      character-device,
+      directory,
+      fifo,
+      symbolic-link,
+      regular-file,
+      socket,
+    }
+
+    type link-count = u64;
+
+    record descriptor-stat {
+      %type: descriptor-type,
+      link-count: link-count,
+      size: filesize,
+      data-access-timestamp: option<datetime>,
+      data-modification-timestamp: option<datetime>,
+      status-change-timestamp: option<datetime>,
+    }
+
+    record metadata-hash-value {
+      lower: u64,
+      upper: u64,
+    }
+  }
+  interface preopens {
+    use types.{descriptor};
+
+    get-directories: func() -> list<tuple<descriptor, string>>;
+  }
+}
+
+
+package wasi:random@0.2.6 {
+  interface random {
+    get-random-bytes: func(len: u64) -> list<u8>;
+  }
+}
+
+
+package example:component {
+  interface operations {
+    add: func(left: s32, right: s32) -> s32;
+  }
+}

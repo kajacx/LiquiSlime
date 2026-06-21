@@ -23,7 +23,8 @@ const BYTES_DRAGGER: &[u8] = include_bytes!(
     // "../../../../adaptors/csharp/SlimeDragger/wasiconsole/bin/Debug/net10.0/wasi-wasm/AppBundle/dotnet.wasm"
     // "../../../../adaptors/csharp/SlimeDragger/bin/Debug/net10.0/wasiconsole.wasm",
     // "../../../../adaptors/csharp/SlimeDragger/bin/Release/net10.0/wasi-wasm/publish/wasiconsole.wasm",
-    "../../../../adaptors/csharp/SlimeDragger/bin/Release/net10.0/wasi-wasm/native/wasiconsole.wasm",
+    //"../../../../adaptors/csharp/SlimeDragger/bin/Release/net10.0/wasi-wasm/native/wasiconsole.wasm",
+    "../../../../adaptors/csharp/SlimeDragger/bin/Debug/net10.0/wasi-wasm/publish/adder.wasm"
 );
 
 #[macroquad::main("Liquislime")]

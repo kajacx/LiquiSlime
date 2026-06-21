@@ -10,7 +10,8 @@ pub struct PollableResource {}
 pub fn register_resources(linker: &mut Linker) -> ResultType<PollResources> {
     let instance = linker.define_instance("wasi:io/poll@0.2.6".try_into()?)?;
 
-    let pollable = ResourceType::new::<PollableResource>(None);
+    let pollable =
+        ResourceType::new::<PollableResource>(Some(TypeIdentifier::new("Pollable hello", None)));
     instance.define_resource("pollable", pollable.clone())?;
 
     Ok(PollResources { pollable })
@@ -28,6 +29,9 @@ pub fn add_to_linker(params: &mut AddToLinkerParams) -> ResultType<()> {
             &mut params.store,
             FuncType::new(
                 [ValueType::Borrow(params.resources.io.poll.pollable.clone())],
+                // [ValueType::Borrow(ResourceType::new::<PollableResource>(
+                //     None,
+                // ))],
                 [],
             ),
             |_, _, _| {
