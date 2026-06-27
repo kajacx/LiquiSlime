@@ -1,4 +1,4 @@
-use std::{io::Read, ptr::NonNull};
+use std::ptr::NonNull;
 
 use liquislime_core::*;
 use wasmi::{Engine, Instance, Linker, Module, Store};
